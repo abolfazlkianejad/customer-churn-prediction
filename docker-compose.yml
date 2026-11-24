@@ -1,0 +1,29 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: smartpredict-churn-api:optimized
+    container_name: smartpredict-api
+    restart: unless-stopped
+    environment:
+      SMARTPREDICT_ENVIRONMENT: production
+      SMARTPREDICT_API_HOST: 0.0.0.0
+      SMARTPREDICT_API_PORT: ${SMARTPREDICT_API_PORT:-8000}
+      SMARTPREDICT_API_PREFIX: ${SMARTPREDICT_API_PREFIX:-/api/v1}
+      SMARTPREDICT_CONFIGS_DIR: /app/configs
+      SMARTPREDICT_ARTIFACTS_DIR: /app/artifacts
+      SMARTPREDICT_MODELS_DIR: /app/artifacts/models
+      SMARTPREDICT_LOG_FORMAT: json
+      SMARTPREDICT_LOG_LEVEL: ${SMARTPREDICT_LOG_LEVEL:-INFO}
+      SMARTPREDICT_LOG_TO_FILE: "false"
+    ports:
+      - "${SMARTPREDICT_API_PORT:-8000}:${SMARTPREDICT_API_PORT:-8000}"
+    volumes:
+      - ${SMARTPREDICT_HOST_MODELS_DIR:-./artifacts/models}:/app/artifacts/models:ro
+    healthcheck:
+      test: ["CMD", "python", "-m", "smartpredict.deployment.healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s

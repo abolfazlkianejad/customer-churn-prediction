@@ -1,0 +1,193 @@
+# Training configuration. Hyperparameters are deliberately kept out of source code.
+# The `models` section defines every candidate evaluated on validation data.
+# The legacy `model` section remains for single-model APIs and compatibility.
+
+experiment:
+  name: churn-xgboost-baseline
+  description: Baseline binary classifier for IBM Telco customer churn.
+  seed: 42
+
+model:
+  name: xgboost
+  version: v1
+  params: {}
+
+models:
+  logistic_regression:
+    enabled: true
+    params:
+      max_iter: 1000
+      solver: lbfgs
+
+  decision_tree:
+    enabled: true
+    params:
+      max_depth: 5
+      min_samples_leaf: 5
+
+  random_forest:
+    enabled: true
+    params:
+      n_estimators: 200
+      max_depth: 10
+      min_samples_leaf: 2
+      n_jobs: -1
+
+  xgboost:
+    enabled: true
+    params:
+      objective: "binary:logistic"
+      eval_metric: logloss
+      tree_method: hist
+      n_estimators: 200
+      max_depth: 4
+      learning_rate: 0.05
+      subsample: 0.8
+      colsample_bytree: 0.8
+      min_child_weight: 3
+      reg_lambda: 1.0
+      n_jobs: -1
+
+features:
+  impute_numeric_with: median
+  impute_categorical_with: most_frequent
+  scale_numeric: true
+  encode_categorical: one_hot
+  handle_unknown: ignore
+
+validation:
+  cv_folds: 5
+  scoring: roc_auc
+  early_stopping_rounds: 50
+  refit_on_full_train: true
+
+evaluation:
+  primary_metric: roc_auc
+  optimization_direction: maximize
+
+metrics:
+  secondary:
+    - accuracy
+    - precision
+    - recall
+    - f1
+    - brier_score
+    - log_loss
+
+artifacts:
+  directory: artifacts/models
+  bundle_files:
+    model: best_model.joblib
+    preprocessor: preprocessing_pipeline.joblib
+    metadata: model_metadata.json
+    comparison: model_comparison.json
+    final_test: final_test_report.json
+  plots_directory: artifacts/plots
+  reports_directory: artifacts/reports
+
+explainability:
+  enabled: true
+  method: shap_tree
+  max_background_samples: 100
+  sample_size: 100
+  local_examples: 3
+  output_directory: artifacts/explainability
+
+# Optuna optimization uses the preprocessing already declared above. Search
+# spaces are explicit and deliberately limited to parameters with a clear
+# effect on tree-based churn models. The test split is never read here.
+optimization:
+  enabled: true
+  model_type: xgboost
+  n_trials: 12
+  timeout_seconds: 900
+  seed: 42
+  metric: roc_auc
+  direction: maximize
+  cv_folds: 5
+  study_name: churn_xgboost_optuna
+  output_directory: artifacts/optimization
+  storage_file: optuna_study.db
+  data_directory: data/processed
+  train_file: train.csv
+  validation_file: validation.csv
+  resume: false
+
+  search_space:
+    xgboost:
+      n_estimators:
+        type: int
+        low: 100
+        high: 600
+        step: 50
+      max_depth:
+        type: int
+        low: 3
+        high: 8
+      learning_rate:
+        type: float
+        low: 0.01
+        high: 0.20
+        log: true
+      subsample:
+        type: float
+        low: 0.60
+        high: 1.00
+        step: 0.05
+      colsample_bytree:
+        type: float
+        low: 0.60
+        high: 1.00
+        step: 0.05
+      min_child_weight:
+        type: int
+        low: 1
+        high: 10
+      gamma:
+        type: float
+        low: 0.00
+        high: 1.00
+        step: 0.05
+      reg_alpha:
+        type: float
+        low: 0.00
+        high: 1.00
+        step: 0.05
+      reg_lambda:
+        type: float
+        low: 0.50
+        high: 5.00
+        step: 0.50
+
+    # Available for future experiments; the default workflow optimizes XGBoost.
+    random_forest:
+      n_estimators:
+        type: int
+        low: 200
+        high: 800
+        step: 50
+      max_depth:
+        type: int
+        low: 5
+        high: 20
+      min_samples_leaf:
+        type: int
+        low: 1
+        high: 10
+      max_features:
+        type: categorical
+        choices: ["sqrt", "log2"]
+
+  threshold:
+    enabled: true
+    minimum: 0.05
+    maximum: 0.95
+    step: 0.01
+    criterion: weighted_score
+    weights:
+      precision: 0.25
+      recall: 0.50
+      f1: 0.25
+    min_precision: 0.60
+    min_recall: 0.0
+    min_specificity: 0.0

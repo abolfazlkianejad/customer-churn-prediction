@@ -1,0 +1,38 @@
+# Explicit, fully pinned CPU-only runtime set for the FastAPI inference image.
+#
+# Every package below is either a direct runtime dependency or a required
+# transitive dependency of one of the direct dependencies. The set is installed
+# with --no-deps so that xgboost's Linux-only nvidia-nccl-cu12 wheel cannot be
+# pulled into a CPU serving image. CPU XGBoost inference is validated separately.
+#
+# Excluded intentionally: matplotlib, seaborn, shap, optuna, notebook stacks,
+# pytest/ruff/mypy, GitPython, pip/setuptools/wheel, and NVIDIA CUDA packages.
+annotated-doc==0.0.7
+annotated-types==0.8.0
+anyio==4.16.0
+click==8.5.1
+fastapi==0.165.0
+h11==0.16.0
+idna==3.20
+joblib==1.5.3
+narwhals==2.29.0
+numpy==2.3.5
+opentelemetry-api==1.45.2
+packaging==26.3
+pandas==2.3.0
+pydantic==2.13.3
+pydantic-core==2.46.3
+pydantic-settings==2.16.3
+python-dateutil==4.0.0
+python-dotenv==1.2.4
+pytz==2026.6
+PyYAML==6.0.3
+scikit-learn==1.9.1
+scipy==1.17.1
+starlette==1.10.0
+threadpoolctl==3.8.0
+typing-extensions==4.16.0
+typing-inspection==0.4.5
+tzdata==2026.6
+uvicorn==0.54.0
+xgboost==3.1.2

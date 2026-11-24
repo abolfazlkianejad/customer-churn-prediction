@@ -1,0 +1,15 @@
+# Runtime dependencies (exact versions validated for Python 3.11+)
+numpy==2.3.5
+pandas==2.3.0
+scikit-learn==1.9.1
+joblib==1.5.3
+xgboost==3.1.2
+matplotlib==3.10.8
+seaborn==0.13.2
+shap==0.54.1
+fastapi==0.165.0
+pydantic==2.13.3
+pydantic-settings==2.16.3
+PyYAML==6.0.3
+uvicorn==0.54.0
+optuna==5.1.0

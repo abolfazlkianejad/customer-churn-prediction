@@ -1,0 +1,61 @@
+# Version control and editor state
+.gitattributes
+.github/
+.idea/
+.vscode/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python caches and build output
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+*.whl
+
+# Test, lint, and type-check caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+junit.xml
+
+# Notebooks and one-off exploration
+notebooks/
+.ipynb_checkpoints/
+
+# Raw and processed data must never be committed
+data/
+*.csv
+*.parquet
+*.feather
+*.db
+*.sqlite
+*.sqlite3
+
+# Model artifacts are supplied at deploy time through a read-only mount
+artifacts/
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Logs, temporary files, and OS files
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
